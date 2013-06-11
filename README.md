@@ -37,25 +37,28 @@ class Haystack
 end
 
 # suppose we have an instance of that, called haystack
-haystack
+haystack # => <Haystack:0x007fb3721013c8>
 # and we know that somewhere between 0 and 100, 
 # it includes one or more needles
 haystack.has_needles?(0...100) #=> true
 
 # but we can only know whether or not a range has needles,
 # not how many there are or where they are.
-haystack.has_needle?(0..0) #=> false
-haystack.has_needle?(1..1) #=> false
-haystack.has_needle?(2..2) #=> false
-haystack.has_needle?(3..3) #=> false
+haystack.has_needle?(0...1) #=> false
+haystack.has_needle?(1...2) #=> false
+haystack.has_needle?(2...3) #=> false
+haystack.has_needle?(3...4) #=> false
  # ...
-haystack.has_needle?(99..99) #=> false
+haystack.has_needle?(99...100) #=> true
 
 # Let's try the same thing with iteration
-(0..100).to_a.select do |idx|
-  haystack.has_needle?(idx..idx)
+query_count = 0
+(0...100).to_a.select do |idx|
+  query_count += 1
+  haystack.has_needle?(idx...idx.next)
 end
 # => [17, 47, 99]
+query_count #=> 100
 
 # Note that we still had to query every single item.
 # Imagine a haystack with a billion items; whether
@@ -67,13 +70,22 @@ end
 # recursively, continuing to search into sub-ranges that
 # return true for the given block.
 search_range = 0...100
+query_count = 0
 search_range.extend(Range::Bisect)
 search_range.bisect do |sub_range|
+  query_count += 1
   haystack.has_needle?(sub_range)
 end
 # => [17, 47, 99]
-
+query_count #=> 35
 ```
+
+Worth noting is that Bisect is actualy *less* efficient at
+the worst-case scenario.
+
+As the number of needles (`n`)
+in the haystack (size `h`) approaches `h`, the total number
+of times the block is executed approaches `2 * h`.
 
 ## Contributing
 
