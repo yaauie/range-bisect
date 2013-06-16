@@ -44,18 +44,18 @@ haystack.has_needles?(0...100) #=> true
 
 # but we can only know whether or not a range has needles,
 # not how many there are or where they are.
-haystack.has_needle?(0...1) #=> false
-haystack.has_needle?(1...2) #=> false
-haystack.has_needle?(2...3) #=> false
-haystack.has_needle?(3...4) #=> false
+haystack.has_needles?(0...1) #=> false
+haystack.has_needles?(1...2) #=> false
+haystack.has_needles?(2...3) #=> false
+haystack.has_needles?(3...4) #=> false
  # ...
-haystack.has_needle?(99...100) #=> true
+haystack.has_needles?(99...100) #=> true
 
 # Let's try the same thing with iteration
 query_count = 0
 (0...100).to_a.select do |idx|
   query_count += 1
-  haystack.has_needle?(idx...idx.next)
+  haystack.has_needles?(idx...idx.next)
 end
 # => [17, 47, 99]
 query_count #=> 100
@@ -74,7 +74,7 @@ query_count = 0
 search_range.extend(Range::Bisect)
 search_range.bisect do |sub_range|
   query_count += 1
-  haystack.has_needle?(sub_range)
+  haystack.has_needles?(sub_range)
 end
 # => [17, 47, 99]
 query_count #=> 35
